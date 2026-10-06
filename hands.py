@@ -1,20 +1,26 @@
-from collections import Counter
-from dataclasses import dataclass
-from typing import Sequence
-
-
 VALID_SUITS = {"clubs", "diamonds", "hearts", "spades"}
 
 
-@dataclass(frozen=True)
 class Card:
 	"""A playing card. Ranks run from 2 to 14, where 11-14 are J-Q-K-A."""
 
-	rank: int
-	suit: str
+	__slots__ = ("rank", "suit")
+
+	def __init__(self, rank, suit):
+		self.rank = rank
+		self.suit = suit
+
+	def __hash__(self):
+		return hash((self.rank, self.suit))
+
+	def __eq__(self, other):
+		return isinstance(other, Card) and self.rank == other.rank and self.suit == other.suit
+
+	def __repr__(self):
+		return f"Card(rank={self.rank}, suit={self.suit})"
 
 
-def evaluate_hand(cards: Sequence[Card]) -> str:
+def evaluate_hand(cards):
 	"""Return the strongest poker hand made from one to five selected cards."""
 	if not 1 <= len(cards) <= 5:
 		raise ValueError("A hand must contain between 1 and 5 cards.")
@@ -29,7 +35,10 @@ def evaluate_hand(cards: Sequence[Card]) -> str:
 		raise ValueError("A hand cannot contain the same card more than once.")
 
 	ranks = [card.rank for card in cards]
-	rank_counts = sorted(Counter(ranks).values(), reverse=True)
+	rank_counts = {}
+	for rank in ranks:
+		rank_counts[rank] = rank_counts.get(rank, 0) + 1
+	rank_counts = sorted(rank_counts.values(), reverse=True)
 	is_five_cards = len(cards) == 5
 	is_flush = is_five_cards and len({card.suit for card in cards}) == 1
 	unique_ranks = set(ranks)
