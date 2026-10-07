@@ -21,7 +21,7 @@ history matters.
 |---------|----------|--------------|-------------|-----------|
 | <Andrew>|ffdaad5   |aca2f9        |4f21d83      |4f21d83    |
 | <Borna> |          |2022578       |2022578      |2022578    |
-| <Gaddiel>|          |              |             |           |
+| <Gaddiel>|          |959f081      |959f081      |959f081    |
 | <name>  |          |              |             |           |
 
 ## Milestone 2 - Practical Application (Unit 03)
