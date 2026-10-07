@@ -20,7 +20,7 @@ history matters.
 | Student | Planning | Control flow | Collections | Functions |
 |---------|----------|--------------|-------------|-----------|
 | <Andrew>|ffdaad5   |aca2f9        |4f21d83      |4f21d83    |
-| <Borna> |          |              |             |           |
+| <Borna> |          |2022578       |2022578      |2022578    |
 | <Gaddiel>|          |              |             |           |
 | <name>  |          |              |             |           |
 
