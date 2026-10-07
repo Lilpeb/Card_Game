@@ -3,6 +3,7 @@
 from balatro_stackCards import Deck, PlayerHand
 from hands import Card as EvaluatedCard
 from hands import evaluate_hand
+from Score_Psy import calculate_score
 
 
 
@@ -23,7 +24,9 @@ def play_game():
 		evaluator_cards = [
 			EvaluatedCard(int(card.rank), card.suit) for card in player.cards
 		]
-		print(f"Hand: {evaluate_hand(evaluator_cards)}")
+		hand_type = evaluate_hand(evaluator_cards)
+		print(f"Hand: {hand_type}")
+		print(f"Score: {calculate_score(evaluator_cards, hand_type)}")
 		print(f"Cards remaining in deck: {deck.cards_left()}")
 		round_number += 1
 
