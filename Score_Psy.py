@@ -1,3 +1,6 @@
+import random
+
+
 hands_scores = {
     "High Card": [5, 1],
     "Pair": [10, 2],
@@ -35,9 +38,14 @@ def calculate_score(scoring_cards, hand_type):
     return score
 
 
-def check_boss(played_cards, boss):
-    if boss == "Psychic":
-        if len(played_cards) != 5:
-            return False
+boss_blinds = {
+    "Psychic": lambda played_cards: len(played_cards) == 5,
+}
 
-    return True
+
+def choose_boss():
+    return random.choice(tuple(boss_blinds))
+
+
+def check_boss(played_cards, boss):
+    return boss is None or boss_blinds[boss](played_cards)
