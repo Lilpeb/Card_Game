@@ -1,4 +1,5 @@
 import random
+import json
 
 
 hands_scores = {
@@ -14,9 +15,11 @@ hands_scores = {
     "Royal Flush": [100, 8]
 }
 
+
 class Scorer:
     def __init__(self):
         self.hands_scores = hands_scores
+        self.high_score = self.load_high_score()
 
     def value_of_cards(self, rank):
         if rank <= 10:
@@ -26,21 +29,36 @@ class Scorer:
         else:
             return 10
 
-    def _sum_card_values(self, scoring_cards, index=0):
-        # Stop once every selected card's value has been added.
-        if index == len(scoring_cards):
-            return 0
-        # Add this card, then recurse with the next position.
-        return (
-            self.value_of_cards(scoring_cards[index].rank)
-            + self._sum_card_values(scoring_cards, index + 1)
-        )
-
     def calculate_score(self, scoring_cards, hand_type):
         chips = self.hands_scores[hand_type][0]
         mult = self.hands_scores[hand_type][1]
-        chips += self._sum_card_values(scoring_cards)
-        return chips * mult
+
+        for card in scoring_cards:
+            chips += self.value_of_cards(card.rank)
+
+        score = chips * mult
+
+        if score > self.high_score:
+            self.high_score = score
+            self.save_high_score()
+
+        return score
+
+    def save_high_score(self):
+        data = {"high_score": self.high_score}
+
+        with open("high_score.json", "w") as file:
+            json.dump(data, file)
+
+    def load_high_score(self):
+        try:
+            with open("high_score.json", "r") as file:
+                data = json.load(file)
+                return data.get("high_score", 0)
+
+        except (FileNotFoundError, json.JSONDecodeError):
+            return 0
+
 
 def value_of_cards(rank):
     if rank <= 10:
