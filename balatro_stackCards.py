@@ -7,17 +7,17 @@ class Card:
         self.suit = suit
 
     def __str__(self):
-        return f"{self.rank} {self.suit}"
+        return f"{self.rank}{self.suit}"
 
 
 class Deck:
     def __init__(self):
         self.cards = []
 
-        suits = ["spades", "hearts", "diamonds", "clubs"]
+        suits = ["♠", "♥", "♦", "♣"]
         ranks = [
             "2", "3", "4", "5", "6", "7", "8", "9",
-            "10", "11", "12", "13", "14"
+            "10", "J", "Q", "K", "A"
         ]
 
         # Create the 52 cards

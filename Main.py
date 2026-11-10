@@ -1,12 +1,16 @@
 """Main game loop for the Balatro-like card game."""
 
+import argparse
+
 from balatro_stackCards import Deck, PlayerHand
 from hands import Card as EvaluatedCard
 from hands import evaluate_hand
 from Score_Psy import calculate_score
 from Score_Psy import check_boss, choose_boss
+from savefile import load_game, save_game
 
 
+# Tunable gameplay values for the round flow.
 HAND_SIZE = 8
 MAX_CARDS_PER_ACTION = 5
 BLIND_TARGET = 300
@@ -14,9 +18,12 @@ PLAYS_PER_BLIND = 4
 DISCARDS_PER_BLIND = 3
 BLIND_NUMBER = 1
 BLIND_SCORE_INCREMENT_MULTIPLIER = 1
+# Fixed for combatability
+SUIT_NAMES = {"♠": "spades", "♥": "hearts", "♦": "diamonds", "♣": "clubs"}
 
 
 def choose_cards(player, action_name):
+	# Validate a comma-separated list of card positions and return the matching card objects.
 	while True:
 		selection = input(
 			f"Enter 1-{MAX_CARDS_PER_ACTION} hand positions to {action_name}, "
@@ -43,33 +50,50 @@ def choose_cards(player, action_name):
 
 
 def refill_hand(deck, player):
+	# Keep the player's hand at a consistent size after discards or plays.
 	cards_needed = HAND_SIZE - len(player.cards)
 	player.add_cards(deck.draw(cards_needed))
 
 
-def play_game():
+def play_game(load_saved=False):
+	# Main loop: each blind has its own target, deck, and action limits.
 	print("=== CARD HAND GAME ===")
 	blind_number = BLIND_NUMBER
+	deck = Deck()
+	player = PlayerHand()
+	resume_state = None
+
+	if load_saved or input("Load saved game? [y/N]: ").strip().lower() == "y":
+		resume_state = load_game(deck, player)
 
 	# This outer loop starts another blind after every successful clear.
 	while True:
+		if resume_state is not None:
+			blind_number = resume_state["blind_number"]
 		blind_target = BLIND_TARGET * (
 			1 + (blind_number - 1) * BLIND_SCORE_INCREMENT_MULTIPLIER
 		)
-		boss = choose_boss() if blind_number % 3 == 0 else None
-
-		# Each blind gets a fresh deck, hand, score, and action allowance.
-		deck = Deck()
-		deck.shuffle()
-		player = PlayerHand()
-		player.add_cards(deck.draw(HAND_SIZE))
-		blind_score = 0
-		plays_remaining = PLAYS_PER_BLIND
-		discards_remaining = DISCARDS_PER_BLIND
+		if resume_state is not None:
+			blind_score = resume_state["blind_score"]
+			plays_remaining = resume_state["plays_remaining"]
+			discards_remaining = resume_state["discards_remaining"]
+			boss = resume_state["boss"]
+			resume_state = None
+		else:
+			# Each blind gets a fresh deck, hand, score, and action allowance.
+			deck = Deck()
+			deck.shuffle()
+			player = PlayerHand()
+			player.add_cards(deck.draw(HAND_SIZE))
+			blind_score = 0
+			plays_remaining = PLAYS_PER_BLIND
+			discards_remaining = DISCARDS_PER_BLIND
+			boss = choose_boss() if blind_number % 3 == 0 else None
 
 		print(f"\n=== {'Boss Blind' if boss else 'Blind'} {blind_number} | Target: {blind_target} ===")
 
 		while blind_score < blind_target and plays_remaining > 0:
+			# Report the current round state before each action choice.
 			print(
 				f"\nBlind score: {blind_score}/{blind_target} | "
 				f"Plays: {plays_remaining} | Discards: {discards_remaining}"
@@ -81,14 +105,23 @@ def play_game():
 				break
 
 			action = input(
-				"Choose [p]lay, [d]iscard, or [q]uit: "
+				"Choose [p]lay, [d]iscard, [s]ave and quit, or [q]uit: "
 			).strip().lower()
 
 			if action == "q":
 				print("You quit the game.")
 				return
+			if action == "s":
+				save_game(deck, player, {
+					"blind_number": blind_number,
+					"blind_score": blind_score,
+					"plays_remaining": plays_remaining,
+					"discards_remaining": discards_remaining,
+					"boss": boss,
+				})
+				return
 			if action not in ("p", "d"):
-				print("Choose p to play, d to discard, or q to quit.")
+				print("Choose p to play, d to discard, s to save, or q to quit.")
 				continue
 			if action == "d" and discards_remaining == 0:
 				print("You have no discards remaining.")
@@ -102,8 +135,9 @@ def play_game():
 				continue
 
 			if action == "p":
+				# Score the selected cards as a poker-like hand and advance the blind timer.
 				evaluated_cards = [
-					EvaluatedCard(int(card.rank), card.suit)
+					EvaluatedCard(int(card.rank), SUIT_NAMES[card.suit])
 					for card in selected_cards
 				]
 				hand_type = evaluate_hand(evaluated_cards)
@@ -115,6 +149,7 @@ def play_game():
 				discards_remaining -= 1
 				print(f"Discarded {len(selected_cards)} card(s).")
 
+			# Replace played/discarded cards so the hand stays full for the next turn.
 			player.remove_cards(selected_cards)
 			refill_hand(deck, player)
 			print(f"Cards remaining in deck: {deck.cards_left()}")
@@ -135,4 +170,11 @@ def play_game():
 
 
 if __name__ == "__main__":
-	play_game()
+	# --load resumes a save directly; without it, play_game prompts as usual.
+	parser = argparse.ArgumentParser(description="Play the Balatro-like card game.")
+	parser.add_argument(
+		"--load",
+		action="store_true",
+		help="load the saved game without prompting",
+	)
+	play_game(load_saved=parser.parse_args().load)

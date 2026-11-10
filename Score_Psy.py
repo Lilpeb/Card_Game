@@ -26,13 +26,20 @@ class Scorer:
         else:
             return 10
 
+    def _sum_card_values(self, scoring_cards, index=0):
+        # Stop once every selected card's value has been added.
+        if index == len(scoring_cards):
+            return 0
+        # Add this card, then recurse with the next position.
+        return (
+            self.value_of_cards(scoring_cards[index].rank)
+            + self._sum_card_values(scoring_cards, index + 1)
+        )
+
     def calculate_score(self, scoring_cards, hand_type):
         chips = self.hands_scores[hand_type][0]
         mult = self.hands_scores[hand_type][1]
-
-        for card in scoring_cards:
-            chips += self.value_of_cards(card.rank)
-
+        chips += self._sum_card_values(scoring_cards)
         return chips * mult
 
 def value_of_cards(rank):

@@ -1,6 +1,6 @@
 # Card Game
 
-A small command-line poker hand game. Each round, you draw five cards from a shuffled standard deck, see the hand type, and get a score.
+A small command-line poker hand game. Each blind, you draw eight cards from a shuffled standard deck and play selected hands to reach a score target. Every third blind adds a boss condition.
 
 ## Requirements
 
@@ -14,12 +14,19 @@ No external packages are required.
 python Main.py
 ```
 
+To load a saved game directly without the startup prompt:
+
+```bash
+python Main.py --load
+```
+
 ## How to play
 
-- The game deals five cards each round.
-- Your hand and score are displayed.
-- Press **Enter** to play another hand, or enter **q** to quit.
-- The game ends when you quit or there are fewer than five cards left to deal.
+- At startup, enter **y** to resume a saved game, or press **Enter** to start a new one.
+- Choose **p** to play up to five selected cards or **d** to discard them and draw replacements.
+- Enter hand positions separated by commas when prompted.
+- Choose **s** to save and quit, or **q** to quit without saving.
+- Each blind allows four plays and three discards. Reach its target score to advance.
 
 ## Scoring
 
@@ -41,10 +48,3 @@ A hand's score is calculated as:
 | Royal Flush | 100 | 8× |
 
 Card values added to the base chips are their rank for 2–10, 10 for Jack, Queen, and King, and 11 for Ace.
-
-## Project files
-
-- `Main.py` — game loop and command-line interface
-- `balatro_stackCards.py` — deck, cards, and player hand
-- `hands.py` — poker hand evaluation
-- `Score_Psy.py` — hand scoring rules
