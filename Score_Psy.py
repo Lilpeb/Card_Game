@@ -14,6 +14,26 @@ hands_scores = {
     "Royal Flush": [100, 8]
 }
 
+class Scorer:
+    def __init__(self):
+        self.hands_scores = hands_scores
+
+    def value_of_cards(self, rank):
+        if rank <= 10:
+            return rank
+        elif rank == 14:
+            return 11
+        else:
+            return 10
+
+    def calculate_score(self, scoring_cards, hand_type):
+        chips = self.hands_scores[hand_type][0]
+        mult = self.hands_scores[hand_type][1]
+
+        for card in scoring_cards:
+            chips += self.value_of_cards(card.rank)
+
+        return chips * mult
 
 def value_of_cards(rank):
     if rank <= 10:
@@ -27,15 +47,8 @@ def value_of_cards(rank):
 
 
 def calculate_score(scoring_cards, hand_type):
-    chips = hands_scores[hand_type][0]
-    mult = hands_scores[hand_type][1]
-
-    for card in scoring_cards:
-        chips = chips + value_of_cards(card.rank)
-
-    score = chips * mult
-
-    return score
+    scorer = Scorer()
+    return scorer.calculate_score(scoring_cards, hand_type)
 
 
 boss_blinds = {
