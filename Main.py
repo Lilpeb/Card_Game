@@ -8,6 +8,7 @@ from hands import Hand
 from Score_Psy import calculate_score
 from Score_Psy import check_boss, choose_boss
 from savefile import load_game, save_game
+from hints import best_play_hint
 
 
 # Tunable gameplay values for the round flow.
@@ -107,9 +108,21 @@ def play_game(load_saved=False):
 				break
 
 			action = input(
-				"Choose [p]lay, [d]iscard, [s]ave and quit, or [q]uit: "
+				"Choose [p]lay, [d]iscard, [h]int, [s]ave and quit, or [q]uit: "
 			).strip().lower()
 
+			if action == "h":
+				# Show a useful legal play without using a play or discard.
+				hint = best_play_hint(player.cards, boss)
+				if hint is None:
+					print("No legal hand is available for this boss blind.")
+				else:
+					positions, hand_type, score = hint
+					print(
+						f"Hint: play positions {', '.join(map(str, positions))} "
+						f"({hand_type}, {score} points)."
+					)
+				continue
 			if action == "q":
 				print("You quit the game.")
 				return
@@ -123,7 +136,7 @@ def play_game(load_saved=False):
 				})
 				return
 			if action not in ("p", "d"):
-				print("Choose p to play, d to discard, s to save, or q to quit.")
+				print("Choose p to play, d to discard, h for a hint, s to save, or q to quit.")
 				continue
 			if action == "d" and discards_remaining == 0:
 				print("You have no discards remaining.")
