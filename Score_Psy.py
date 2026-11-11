@@ -18,8 +18,7 @@ hands_scores = {
 
 class Scorer:
     def __init__(self):
-        self.hands_scores = hands_scores
-        self.high_score = self.load_high_score()
+        self.hands_scores = self.load_scores()
 
     def value_of_cards(self, rank):
         if rank <= 10:
@@ -36,28 +35,19 @@ class Scorer:
         for card in scoring_cards:
             chips += self.value_of_cards(card.rank)
 
-        score = chips * mult
+        return chips * mult
 
-        if score > self.high_score:
-            self.high_score = score
-            self.save_high_score()
+    def save_scores(self):
+        with open("scoring_config.json", "w") as file:
+            json.dump(self.hands_scores, file)
 
-        return score
-
-    def save_high_score(self):
-        data = {"high_score": self.high_score}
-
-        with open("high_score.json", "w") as file:
-            json.dump(data, file)
-
-    def load_high_score(self):
+    def load_scores(self):
         try:
-            with open("high_score.json", "r") as file:
-                data = json.load(file)
-                return data.get("high_score", 0)
+            with open("scoring_config.json", "r") as file:
+                return json.load(file)
 
         except (FileNotFoundError, json.JSONDecodeError):
-            return 0
+            return hands_scores.copy()
 
 
 def value_of_cards(rank):
@@ -87,3 +77,9 @@ def choose_boss():
 
 def check_boss(played_cards, boss):
     return boss is None or boss_blinds[boss](played_cards)
+
+
+if __name__ == "__main__":
+    scorer = Scorer()
+    scorer.save_scores()
+    print("Scoring configuration saved!")
