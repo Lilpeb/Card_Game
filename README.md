@@ -26,7 +26,6 @@ python Main.py --load
 - Choose **p** to play up to five selected cards, **d** to discard them and draw replacements, or **h** to get a hint for the highest-scoring legal play.
 - Enter hand positions separated by commas when prompted.
 - Choose **s** to save and quit, or **q** to quit without saving.
-- Choose **h** to see a playable hand if you're stuck.
 - Hints do not use a play or discard. Boss conditions are applied when finding a hint.
 - Each blind allows four plays and three discards. Reach its target score to advance.
 
