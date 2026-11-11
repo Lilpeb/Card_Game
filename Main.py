@@ -4,7 +4,7 @@ import argparse
 
 from balatro_stackCards import Deck, PlayerHand
 from hands import Card as EvaluatedCard
-from hands import evaluate_hand
+from hands import Hand
 from Score_Psy import calculate_score
 from Score_Psy import check_boss, choose_boss
 from savefile import load_game, save_game
@@ -20,6 +20,8 @@ BLIND_NUMBER = 1
 BLIND_SCORE_INCREMENT_MULTIPLIER = 1
 # Fixed for combatability
 SUIT_NAMES = {"♠": "spades", "♥": "hearts", "♦": "diamonds", "♣": "clubs"}
+# Convert the deck's face-card labels to the numeric ranks used by Hand.
+FACE_CARD_RANKS = {"J": 11, "Q": 12, "K": 13, "A": 14}
 
 
 def choose_cards(player, action_name):
@@ -137,10 +139,14 @@ def play_game(load_saved=False):
 			if action == "p":
 				# Score the selected cards as a poker-like hand and advance the blind timer.
 				evaluated_cards = [
-					EvaluatedCard(int(card.rank), SUIT_NAMES[card.suit])
+					EvaluatedCard(
+						int(card.rank) if card.rank.isdigit() else FACE_CARD_RANKS[card.rank],
+						SUIT_NAMES[card.suit],
+					)
 					for card in selected_cards
 				]
-				hand_type = evaluate_hand(evaluated_cards)
+				# Let the selected cards' Hand object determine their poker category.
+				hand_type = Hand(evaluated_cards).evaluate()
 				hand_score = calculate_score(evaluated_cards, hand_type)
 				blind_score += hand_score
 				plays_remaining -= 1

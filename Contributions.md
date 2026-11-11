@@ -29,7 +29,7 @@ history matters.
 | Student | OOP | File I/O | Recursion | Command-line args | Interface (TUI/GUI) |
 |---------|-----|----------|-----------|-------------------|---------------------|
 | <Andrew>  |     |          |           |                   |                     |
-| <Borna>  |1161037|957b7b7|2dd613e      |                   |                     |
+| <Borna> |1161037|957b7b7 |2dd613e      |                   |                     |
 | <Gaddiel>  |     |          |           |                   |                     |
 | <name>  |     |          |           |                   |                     |
 
